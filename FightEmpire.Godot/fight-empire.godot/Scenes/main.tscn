@@ -1,0 +1,179 @@
+[gd_scene format=3 uid="uid://pvmoyiqdefrk"]
+
+[ext_resource type="Script" uid="uid://crdgqi2q4xeq8" path="res://Scripts/Main.cs" id="1_jjgbg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g7v3m"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0, 0, 1)
+
+[node name="Main" type="Node2D" unique_id=1670579591]
+position = Vector2(-2, 0)
+script = ExtResource("1_jjgbg")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=11804143]
+
+[node name="Screen" type="Control" parent="UI" unique_id=933113619]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="UI/Screen" unique_id=1860364785]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
+
+[node name="MainLayout" type="VBoxContainer" parent="UI/Screen/Margin" unique_id=383409951]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="UI/Screen/Margin/MainLayout" unique_id=1318815630]
+layout_mode = 2
+text = "Fight Empire"
+horizontal_alignment = 1
+
+[node name="FighterColumns" type="HBoxContainer" parent="UI/Screen/Margin/MainLayout" unique_id=1521515566]
+layout_mode = 2
+alignment = 1
+
+[node name="Fighter1Column" type="VBoxContainer" parent="UI/Screen/Margin/MainLayout/FighterColumns" unique_id=510898865]
+layout_mode = 2
+
+[node name="Fighter1Title" type="Label" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter1Column" unique_id=1935861701]
+layout_mode = 2
+text = "Fighter1"
+horizontal_alignment = 1
+
+[node name="Control" type="Control" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter1Column" unique_id=159074592]
+custom_minimum_size = Vector2(350, 300)
+layout_mode = 2
+
+[node name="Fighter1List" type="ItemList" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter1Column/Control" unique_id=1392779233]
+custom_minimum_size = Vector2(350, 300)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Fighter1Details" type="VBoxContainer" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter1Column/Control" unique_id=1323189351]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter1Column/Control/Fighter1Details" unique_id=1968942783]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Fighter1Stats" type="RichTextLabel" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter1Column/Control/Fighter1Details/Panel" unique_id=1135268252]
+clip_contents = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+text = "qwd"
+
+[node name="Button" type="Button" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter1Column/Control/Fighter1Details" unique_id=1049225308]
+layout_mode = 2
+text = "Back"
+
+[node name="ResultColumn" type="VBoxContainer" parent="UI/Screen/Margin/MainLayout/FighterColumns" unique_id=1183561693]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn" unique_id=228597082]
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn" unique_id=1459230325]
+custom_minimum_size = Vector2(350, 300)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_g7v3m")
+
+[node name="ResultLabel" type="RichTextLabel" parent="UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn/Panel" unique_id=676932217]
+custom_minimum_size = Vector2(350, 300)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+text = "Select Two Fighters"
+
+[node name="Fighter2Column" type="VBoxContainer" parent="UI/Screen/Margin/MainLayout/FighterColumns" unique_id=239436610]
+layout_mode = 2
+
+[node name="Fighter2Title" type="Label" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter2Column" unique_id=956918317]
+layout_mode = 2
+text = "Fighter2"
+horizontal_alignment = 1
+
+[node name="Control" type="Control" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter2Column" unique_id=413632910]
+custom_minimum_size = Vector2(350, 300)
+layout_mode = 2
+
+[node name="Fighter2List" type="ItemList" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter2Column/Control" unique_id=54178327]
+custom_minimum_size = Vector2(350, 300)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Fighter2Details" type="VBoxContainer" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter2Column/Control" unique_id=379326621]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter2Column/Control/Fighter2Details" unique_id=885810668]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Fighter2Stats" type="RichTextLabel" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter2Column/Control/Fighter2Details/Panel" unique_id=484271900]
+clip_contents = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+text = "qwd"
+
+[node name="Button" type="Button" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter2Column/Control/Fighter2Details" unique_id=535150081]
+layout_mode = 2
+text = "Back"
+
+[node name="SimulateButton" type="Button" parent="UI/Screen/Margin/MainLayout" unique_id=1880310977]
+layout_mode = 2
+text = "Simulate Fight"
+
+[node name="SaveButton" type="Button" parent="UI/Screen/Margin/MainLayout" unique_id=921381370]
+layout_mode = 2
+text = "Save Game"
+
+[node name="LoadButton" type="Button" parent="UI/Screen/Margin/MainLayout" unique_id=314796358]
+layout_mode = 2
+text = "Load Game"

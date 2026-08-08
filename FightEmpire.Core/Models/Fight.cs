@@ -1,30 +1,86 @@
+using FightEmpire;
 using FightEmpire.Core.Models;
 
-public class Fight(Fighter Fighter1, Fighter Fighter2)
+public class Fight(Fighter Fighter1, Fighter Fighter2, int NumberOfRounds)
 {
+
+    public Fighter? Winner { get; private set; }
+    public Fighter? Looser { get; private set; }
+    public RoundOutcome? Result { get; private set; }
+
+    public List<RoundSummary> RoundSummaries { get; } = new();
+
     Random random = new Random();
-    public Fighter run()
+    public void Run()
     {
-        int fighther1Performance = getPerformance(Fighter1);
-        int fighther2Performance = getPerformance(Fighter2);
+        ResetPoints();
 
-        if(fighther1Performance > fighther2Performance)
+        for(int roundNumber = 1; roundNumber <= NumberOfRounds; roundNumber++)
         {
-            Fighter1.Wins++;
-            Fighter2.Losses++;
+            RoundSummary summary = RunRound(roundNumber);
 
-            return Fighter1;
+            RoundSummaries.Add(summary);
+
+            if(summary.isFinish)
+            {
+                FinishFight(summary);
+                return;
+            }
         }
 
-        Fighter2.Wins++;
-        Fighter1.Losses++;
-
-        return Fighter2;
+        DetermainWinnerByDecision();
 
     }
 
-    private int getPerformance(Fighter fighter)
+    private RoundSummary RunRound(int roundNumber)
     {
-        return fighter.Striking + fighter.Wrestling + fighter.Grappling + random.Next(1, 101);
+        Round round = new(Fighter1, Fighter2, roundNumber);
+
+        round.Run();
+
+        return round.Summary!;
     }
+
+    private void FinishFight(RoundSummary summary)
+    {
+        Winner = summary.Winner;
+        Looser = summary.Looser;
+        Result = summary.outcome;
+
+        UpdateRecords();
+
+
+    }
+
+    private void DetermainWinnerByDecision()
+    {
+        if(Fighter1.Points > Fighter2.Points)
+        {
+            Winner = Fighter1;
+            Looser = Fighter2;
+        }
+        else
+        {
+            Winner = Fighter2;
+            Looser = Fighter1;
+        }
+
+        Result = RoundOutcome.Decision;
+
+        UpdateRecords();
+    }
+
+    private void UpdateRecords()
+    {
+        Winner!.Wins++;
+        Looser!.Losses++;
+    }
+
+    private void ResetPoints()
+    {
+        Fighter1.ResetPoints();
+        Fighter2.ResetPoints();
+    }
+
+    
 }

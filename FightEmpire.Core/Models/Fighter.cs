@@ -12,14 +12,24 @@ public class Fighter
     public int Grappling { get; set; }
     public int Cardio { get; set; }
 
-    public int Wins = 0;
-    public int Losses = 0; 
+    public int StatsTotal => Striking + Wrestling + Grappling;
+
+    public FightingStyle PreferredStyle => getPreferedStyle();
+    public int PreferedStat => getPreferedStyleStat(PreferredStyle);
+
+    public int Wins { get; set; } = 0 ;
+    public int Losses { get; set; } = 0; 
+
+    public int Points { get; set; } = 0;
+
+
     
 
     public override string ToString()
     {
         return $"""
-        {FirstName} {Nickname} {LastName}
+        {FirstName} "{Nickname}" {LastName}
+        {Wins}-{Losses}
 
         Striking: {Striking}
         Wrestling: {Wrestling}
@@ -27,5 +37,55 @@ public class Fighter
         Cardio: {Cardio}
         """;
         
+    }
+
+    private FightingStyle getPreferedStyle()
+    {
+        int highest = Math.Max(Striking, Math.Max(Wrestling, Grappling));
+
+        List<FightingStyle> bestStyles = new();
+        
+        if(Striking == highest)
+            bestStyles.Add(FightingStyle.Standup);
+
+        if(Wrestling == highest)
+            bestStyles.Add(FightingStyle.Wrestling);
+
+        if(Grappling == highest)
+            bestStyles.Add(FightingStyle.Grappling);
+        
+        return bestStyles[Random.Shared.Next(bestStyles.Count)];
+
+        
+    }
+
+    private int getPreferedStyleStat(FightingStyle fightingStyle)
+    {
+        switch (fightingStyle)
+        {
+            case FightingStyle.Standup:
+                return this.Striking;
+            case FightingStyle.Wrestling:
+                return this.Wrestling;
+            case FightingStyle.Grappling:
+                return this.Grappling;
+            default:
+                return this.Striking;
+        }
+    }
+
+    public void WinRound()
+    {
+        this.Points += 10;
+    }
+
+    public void LoseRound()
+    {
+        this.Points += 9;
+    }
+
+    public void ResetPoints()
+    {
+        this.Points = 0;
     }
 }
