@@ -8,6 +8,8 @@ public class Fight(Fighter Fighter1, Fighter Fighter2, int NumberOfRounds)
     public Fighter? Looser { get; private set; }
     public RoundOutcome? Result { get; private set; }
 
+    public int FinishRound { get; private set; }
+
     public List<RoundSummary> RoundSummaries { get; } = new();
 
     Random random = new Random();
@@ -24,11 +26,19 @@ public class Fight(Fighter Fighter1, Fighter Fighter2, int NumberOfRounds)
             if(summary.isFinish)
             {
                 FinishFight(summary);
+
+                UpdateRecords();
+                UpdateHistories();
+
                 return;
             }
         }
 
         DetermainWinnerByDecision();
+        FinishRound = 3;
+
+        UpdateRecords();
+        UpdateHistories();
 
     }
 
@@ -46,10 +56,7 @@ public class Fight(Fighter Fighter1, Fighter Fighter2, int NumberOfRounds)
         Winner = summary.Winner;
         Looser = summary.Looser;
         Result = summary.outcome;
-
-        UpdateRecords();
-
-
+        FinishRound = summary.RoundNumber;
     }
 
     private void DetermainWinnerByDecision()
@@ -66,14 +73,18 @@ public class Fight(Fighter Fighter1, Fighter Fighter2, int NumberOfRounds)
         }
 
         Result = RoundOutcome.Decision;
-
-        UpdateRecords();
     }
 
     private void UpdateRecords()
     {
         Winner!.Wins++;
         Looser!.Losses++;
+    }
+
+    private void UpdateHistories()
+    {
+        Winner!.UpdateFightHistory(this);
+        Looser!.UpdateFightHistory(this);
     }
 
     private void ResetPoints()

@@ -11,7 +11,7 @@ Fighter Fighter2 = fighters[1];
 
 //RunFight(fighter1, fighter2, 3);
 //RunDebugFight(fighter1, fighter2, 3);
-RunSimulations(3, 10000);
+TestFightRecord();
 
 void RunFight(Fighter fighter1, Fighter fighter2, int numberOfRounds)
 {
@@ -35,6 +35,63 @@ void RunFight(Fighter fighter1, Fighter fighter2, int numberOfRounds)
     Console.WriteLine(
         $"Winner: {fight.Winner!.FirstName} {fight.Winner.LastName} by {fight.Result}"
     );
+}
+
+void TestFightRecord()
+{
+    Fighter fighter1 = new()
+    {
+        FirstName = "Fighter",
+        LastName = "1",
+        Nickname = "The Beast",
+        Age = 25,
+        Striking = 70,
+        Wrestling = 50,
+        Grappling = 40,
+        Cardio = 60
+    };
+
+    Fighter fighter2 = new()
+    {
+        FirstName = "Fighter",
+        LastName = "2",
+        Nickname = "Mushrooms",
+        Age = 26,
+        Striking = 45,
+        Wrestling = 65,
+        Grappling = 55,
+        Cardio = 60
+    };
+
+    Fight fight = new(fighter1, fighter2, 3);
+
+    fight.Run();
+
+    fighter1.AddToFightResume(fight);
+    fighter2.AddToFightResume(fight);
+
+    Console.WriteLine("===== FIGHT RECORD TEST =====");
+
+    Console.WriteLine(
+        $"{fighter1.FirstName} has {fighter1.FightsRecord.Count} fight(s)"
+    );
+
+    Console.WriteLine(
+        $"{fighter2.FirstName} has {fighter2.FightsRecord.Count} fight(s)"
+    );
+
+    Console.WriteLine();
+
+    foreach (Fight recordedFight in fighter1.FightsRecord)
+    {
+        Console.WriteLine(
+            $"{recordedFight.Winner!.FirstName} " +
+            $"{recordedFight.Winner.LastName} " +
+            $"defeated {recordedFight.Looser!.FirstName} " +
+            $"{recordedFight.Looser.LastName} " +
+            $"by {recordedFight.Result}"
+        );
+    }
 }
 
 void RunDebugFight(Fighter fighter1, Fighter fighter2, int numberOfRounds)

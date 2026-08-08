@@ -12,6 +12,8 @@ public class Fighter
     public int Grappling { get; set; }
     public int Cardio { get; set; }
 
+    public List<Fight> FightHistory {get; private set;} = new();
+
     public int StatsTotal => Striking + Wrestling + Grappling;
 
     public FightingStyle PreferredStyle => getPreferedStyle();
@@ -35,8 +37,41 @@ public class Fighter
         Wrestling: {Wrestling}
         Grappling: {Grappling}
         Cardio: {Cardio}
+
+        Fight History:
+        {GetFightHistory()}
         """;
         
+    }
+
+    private string GetFightHistory()
+    {
+        if (FightHistory.Count == 0)
+            return "No fights yet.";
+
+        string history = "";
+
+        int fightNumber = 1;
+        foreach (Fight fight in FightHistory)
+        {
+            history += $"{fightNumber}.\t";
+            bool won = fight.Winner == this;
+
+            Fighter opponent = won
+                ? fight.Looser!
+                : fight.Winner!;
+
+            string result = won ? "W" : "L";
+
+            history +=
+                $"{result}  " +
+                $"{opponent.FirstName} {opponent.LastName}  " +
+                $"{fight.Result}  " +
+                $"R{fight.FinishRound}\n";
+            fightNumber++;
+        }
+
+        return history;
     }
 
     private FightingStyle getPreferedStyle()
@@ -72,6 +107,11 @@ public class Fighter
             default:
                 return this.Striking;
         }
+    }
+
+    public void UpdateFightHistory(Fight fight)
+    {
+        FightHistory.Add(fight);
     }
 
     public void WinRound()

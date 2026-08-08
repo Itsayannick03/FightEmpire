@@ -2,13 +2,8 @@
 
 [ext_resource type="Script" uid="uid://crdgqi2q4xeq8" path="res://Scripts/Main.cs" id="1_jjgbg"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g7v3m"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3fch8"]
 bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0, 0, 0, 1)
 
 [node name="Main" type="Node2D" unique_id=1670579591]
 position = Vector2(-2, 0)
@@ -82,7 +77,6 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="Fighter1Stats" type="RichTextLabel" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter1Column/Control/Fighter1Details/Panel" unique_id=1135268252]
-clip_contents = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -90,33 +84,52 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 3
-text = "qwd"
 
 [node name="Button" type="Button" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter1Column/Control/Fighter1Details" unique_id=1049225308]
 layout_mode = 2
 text = "Back"
 
-[node name="ResultColumn" type="VBoxContainer" parent="UI/Screen/Margin/MainLayout/FighterColumns" unique_id=1183561693]
+[node name="ResultColumn" type="VBoxContainer" parent="UI/Screen/Margin/MainLayout/FighterColumns" unique_id=1880534652]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.3
+
+[node name="Label" type="Label" parent="UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn" unique_id=425547916]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn" unique_id=228597082]
+[node name="ResultContent" type="VBoxContainer" parent="UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn" unique_id=617686742]
 layout_mode = 2
+size_flags_vertical = 3
 
-[node name="Panel" type="Panel" parent="UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn" unique_id=1459230325]
-custom_minimum_size = Vector2(350, 300)
+[node name="Panel" type="Panel" parent="UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn/ResultContent" unique_id=1328816882]
+custom_minimum_size = Vector2(350, 265)
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_g7v3m")
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_3fch8")
 
-[node name="ResultLabel" type="RichTextLabel" parent="UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn/Panel" unique_id=676932217]
-custom_minimum_size = Vector2(350, 300)
+[node name="ResultLabel" type="RichTextLabel" parent="UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn/ResultContent/Panel" unique_id=1823558929]
+modulate = Color(0, 0, 0, 1)
+self_modulate = Color(0, 0, 0, 1)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/default_color = Color(0, 0, 0, 1)
-text = "Select Two Fighters"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn/ResultContent" unique_id=1863997518]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Button" type="Button" parent="UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn/ResultContent/HBoxContainer" unique_id=178853111]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Previous"
+
+[node name="Button2" type="Button" parent="UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn/ResultContent/HBoxContainer" unique_id=330666207]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Next"
 
 [node name="Fighter2Column" type="VBoxContainer" parent="UI/Screen/Margin/MainLayout/FighterColumns" unique_id=239436610]
 layout_mode = 2
@@ -152,7 +165,6 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="Fighter2Stats" type="RichTextLabel" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter2Column/Control/Fighter2Details/Panel" unique_id=484271900]
-clip_contents = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -160,7 +172,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 3
-text = "qwd"
 
 [node name="Button" type="Button" parent="UI/Screen/Margin/MainLayout/FighterColumns/Fighter2Column/Control/Fighter2Details" unique_id=535150081]
 layout_mode = 2
@@ -177,3 +188,10 @@ text = "Save Game"
 [node name="LoadButton" type="Button" parent="UI/Screen/Margin/MainLayout" unique_id=314796358]
 layout_mode = 2
 text = "Load Game"
+
+[node name="Popup" type="ConfirmationDialog" parent="UI/Screen/Margin" unique_id=49292045]
+disable_3d = true
+oversampling_override = 1.0
+initial_position = 2
+size = Vector2i(300, 150)
+ok_button_text = "Ok"

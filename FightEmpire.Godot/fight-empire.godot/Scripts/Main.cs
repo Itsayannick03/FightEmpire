@@ -15,6 +15,19 @@ public partial class Main : Node2D
 	private Fighter _fighter1 = null!;
 	private Fighter _fighter2 = null!;
 
+	// Main UI
+	private VBoxContainer _mainLayout = null!;
+
+	// Popup UI
+	private ConfirmationDialog _popupWindow = null!;
+
+	// Fight UI
+	private Button _simulateButton = null!;
+	private Button _saveButton = null!;
+	private Button _loadButton = null!;
+
+	private RichTextLabel _resultLabel = null!;
+
 	// Fighter 1 UI
 	private ItemList _fighter1List = null!;
 	private VBoxContainer _fighter1Details = null!;
@@ -27,12 +40,7 @@ public partial class Main : Node2D
 	private RichTextLabel _fighter2Stats = null!;
 	private Button _fighter2BackButton = null!;
 
-	// Fight UI
-	private Button _simulateButton = null!;
-	private Button _saveButton = null!;
-	private Button _loadButton = null!;
-
-	private RichTextLabel _resultLabel = null!;
+	
 
 
 	public override void _Ready()
@@ -98,8 +106,19 @@ public partial class Main : Node2D
 		);
 
 		_resultLabel = GetNode<RichTextLabel>(
-            "UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn/Panel/ResultLabel"
+            "UI/Screen/Margin/MainLayout/FighterColumns/ResultColumn/ResultContent/Panel/ResultLabel"
 		);
+
+		// Main
+
+		_mainLayout = GetNode<VBoxContainer>(
+			"UI/Screen/Margin/MainLayout");
+
+		// Popup
+		_popupWindow = GetNode<ConfirmationDialog>(
+			"UI/Screen/Margin/Popup"
+		);
+
 	}
 
 	private void SetupUI()
@@ -109,6 +128,11 @@ public partial class Main : Node2D
 
 		_fighter2Details.Visible = false;
 		_fighter2List.Visible = true;
+
+		_mainLayout.Visible = true;
+
+		_popupWindow.Visible = false;
+
 	}
 
 	private void ConnectSignals()
@@ -283,8 +307,13 @@ public partial class Main : Node2D
 	// Persistance
 	// --------------------
 
-	private void Save()
+	private async void Save()
 	{
+		bool confirmation = await Popup("Are you sure you want to save?", "Cancel", "Confirm");
+
+		if(!confirmation)
+			return;
+
 		string path = ProjectSettings.GlobalizePath("user://fighters.json");
 
 		SaveManager.SaveFighters(_fighters, path);
@@ -292,8 +321,13 @@ public partial class Main : Node2D
 		GD.Print($"Saved fighters to: {path}");
 	}
 
-	private void Load()
+	private async void Load()
 	{
+		bool confirmation = await Popup("Are you sure you want to load?", "Cancel", "Confirm");
+
+		if(!confirmation)
+			return;
+
 		string path = ProjectSettings.GlobalizePath("user://fighters.json");
 		List<Fighter> savedFighters = SaveManager.LoadFighters(path);
 		if(savedFighters == null)
@@ -308,6 +342,42 @@ public partial class Main : Node2D
 			GD.Print($"Loaded fighters from {path}");
 
 		}
+	}
+
+	// --------------------
+	// Popup
+	// --------------------
+
+	private async Task<bool> Popup(string mainText, string cancelText, string okText)
+	{
+		bool? result = null;
+
+		void OnConfirmed() => result = true;
+		void OnCanceled() => result = false;
+
+		_popupWindow.DialogText = mainText;
+
+		_popupWindow.GetOkButton().Text = okText;
+
+		_popupWindow.GetCancelButton().Text = cancelText;
+
+		_popupWindow.Confirmed += OnConfirmed;
+		_popupWindow.Canceled += OnCanceled;
+
+		_popupWindow.PopupCentered();
+
+
+		while (result == null)
+		{
+			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+		}
+
+		_popupWindow.Confirmed -= OnConfirmed;
+		_popupWindow.Canceled -= OnCanceled;
+
+		_popupWindow.Hide();
+
+		return result.Value;
 	}
 
 	// --------------------
