@@ -1,3 +1,4 @@
+using FightEmpire;
 using FightEmpire.Core.Models;
 
 public class RoundSummary
@@ -10,4 +11,6 @@ public class RoundSummary
     public RoundOutcome? outcome {get; set;}
     public FightingStyle style {get; set;}
     public bool isFinish;
+
+    public List<Exchange> Exchanges {get; set;}
 }

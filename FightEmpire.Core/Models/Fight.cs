@@ -35,7 +35,7 @@ public class Fight(Fighter Fighter1, Fighter Fighter2, int NumberOfRounds)
         }
 
         DetermainWinnerByDecision();
-        FinishRound = 3;
+        FinishRound = NumberOfRounds;
 
         UpdateRecords();
         UpdateHistories();

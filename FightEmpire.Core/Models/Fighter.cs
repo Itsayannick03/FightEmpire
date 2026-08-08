@@ -24,6 +24,8 @@ public class Fighter
 
     public int Points { get; set; } = 0;
 
+    public int ExchangeWins = 0;
+
 
     
 
@@ -127,5 +129,10 @@ public class Fighter
     public void ResetPoints()
     {
         this.Points = 0;
+    }
+
+    public void ResetExchangeWins()
+    {
+        this.ExchangeWins = 0;
     }
 }
