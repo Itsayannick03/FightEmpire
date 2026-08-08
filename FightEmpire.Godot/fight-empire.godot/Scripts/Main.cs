@@ -1,9 +1,10 @@
 using Godot;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FightEmpire.Core.Generation;
 using FightEmpire.Core.Models;
-using System.Threading.Tasks;
 using FightEmpire.Core.Persistence;
+using FightEmpire;
 
 public partial class Main : Node2D
 {
@@ -39,8 +40,6 @@ public partial class Main : Node2D
 	private VBoxContainer _fighter2Details = null!;
 	private RichTextLabel _fighter2Stats = null!;
 	private Button _fighter2BackButton = null!;
-
-	
 
 
 	public override void _Ready()
@@ -110,15 +109,14 @@ public partial class Main : Node2D
 		);
 
 		// Main
-
 		_mainLayout = GetNode<VBoxContainer>(
-			"UI/Screen/Margin/MainLayout");
+            "UI/Screen/Margin/MainLayout"
+		);
 
 		// Popup
 		_popupWindow = GetNode<ConfirmationDialog>(
-			"UI/Screen/Margin/Popup"
+            "UI/Screen/Margin/Popup"
 		);
-
 	}
 
 	private void SetupUI()
@@ -132,7 +130,6 @@ public partial class Main : Node2D
 		_mainLayout.Visible = true;
 
 		_popupWindow.Visible = false;
-
 	}
 
 	private void ConnectSignals()
@@ -193,7 +190,10 @@ public partial class Main : Node2D
 		Fighter fighter = _fighters[(int)index];
 
 		if (fighter == _fighter2)
+		{
+			_fighter1List.Deselect((int)index);
 			return;
+		}
 
 		_fighter1 = fighter;
 
@@ -205,7 +205,7 @@ public partial class Main : Node2D
 
 	private void OnFighter1Back()
 	{
-		_fighter1 = null;
+		_fighter1 = null!;
 
 		_fighter1Details.Visible = false;
 		_fighter1List.Visible = true;
@@ -223,7 +223,10 @@ public partial class Main : Node2D
 		Fighter fighter = _fighters[(int)index];
 
 		if (fighter == _fighter1)
+		{
+			_fighter2List.Deselect((int)index);
 			return;
+		}
 
 		_fighter2 = fighter;
 
@@ -235,7 +238,7 @@ public partial class Main : Node2D
 
 	private void OnFighter2Back()
 	{
-		_fighter2 = null;
+		_fighter2 = null!;
 
 		_fighter2Details.Visible = false;
 		_fighter2List.Visible = true;
@@ -253,48 +256,119 @@ public partial class Main : Node2D
 		if (_fighter1 == null || _fighter2 == null)
 			return;
 
-		Fight fight = new(_fighter1, _fighter2, _numberOfRounds);
+		Fighter fighter1 = _fighter1;
+		Fighter fighter2 = _fighter2;
+
+		Fight fight = new(
+			fighter1,
+			fighter2,
+			_numberOfRounds
+		);
+
+		_simulateButton.Disabled = true;
+
+		_resultLabel.Text =
+			$"{fighter1.FirstName} {fighter1.LastName}\n" +
+			"VS\n" +
+			$"{fighter2.FirstName} {fighter2.LastName}";
+
+		await Wait(1.5);
 
 		fight.Run();
 
 		foreach (RoundSummary round in fight.RoundSummaries)
 		{
-			await ShowRoundSummary(round);
+			await ShowRound(round);
 		}
 
-		if(fight.Result == RoundOutcome.Decision)
+		ShowFightResult(fight);
+
+		ResetFighterSelections();
+
+		_simulateButton.Disabled = false;
+	}
+
+	private async Task ShowRound(RoundSummary round)
+	{
+		_resultLabel.Text =
+			$"ROUND {round.RoundNumber}";
+
+		await Wait(1);
+
+		foreach (Exchange exchange in round.Exchanges)
 		{
-			_resultLabel.Text = $"Winner: {fight.Winner!.FirstName} {fight.Winner.LastName} by Dcision with a score of {fight.Winner.Points}-{fight.Looser!.Points}";
+			await ShowExchange(exchange);
+		}
+
+		if (!round.isFinish)
+		{
+			_resultLabel.Text =
+				$"{round.Winner.FirstName} " +
+				$"{round.Winner.LastName}\n\n" +
+				$"wins Round {round.RoundNumber}.";
+
+			await Wait(1.5);
+		}
+
+		_resultLabel.Clear();
+	}
+
+	private async Task ShowExchange(Exchange exchange)
+	{
+		string text =
+			$"ROUND: {exchange.RoundNumber}\n" +
+			$" ({exchange.Minute}:{exchange.Second:00})\n\n" +
+
+			$"{exchange.StyleWinner!.FirstName} " +
+			$"{exchange.StyleWinner.LastName} wins the style battle.\n\n" +
+
+			$"The exchange becomes {exchange.Style}.\n\n";
+
+		if (exchange.IsFinish)
+		{
+			text +=
+				$"{exchange.Winner!.FirstName} " +
+				$"{exchange.Winner.LastName} finishes " +
+				$"{exchange.Looser!.FirstName} " +
+				$"{exchange.Looser.LastName}\n\n" +
+				$"via {exchange.Outcome}!";
 		}
 		else
 		{
-			_resultLabel.Text = $"Winner: {fight.Winner!.FirstName} {fight.Winner.LastName} by {fight.Result}";
+			text +=
+				$"{exchange.Winner!.FirstName} " +
+				$"{exchange.Winner.LastName} wins the exchange.";
 		}
 
+		_resultLabel.Text = text;
 
-		ResetFighterSelections();
-	}
+		await Wait(1.5);
 
-	private string GetRoundSummary(RoundSummary round)
-	{
-		return $"""
-		Round {round.RoundNumber}
-
-		{round.StyleWinner.FirstName} {round.StyleWinner.LastName}
-		wins the style battle and makes it a {round.style} round.
-
-		{round.Winner.FirstName} {round.Winner.LastName}
-		wins the round.
-
-		Outcome: {round.outcome}
-		""";
-	}
-
-	private async Task ShowRoundSummary(RoundSummary round)
-	{
-		_resultLabel.Text = GetRoundSummary(round);
-		await Wait(1);
 		_resultLabel.Clear();
+	}
+
+	private void ShowFightResult(Fight fight)
+	{
+		if (fight.Result == RoundOutcome.Decision)
+		{
+			_resultLabel.Text =
+				$"FIGHT RESULT\n\n" +
+				$"{fight.Winner!.FirstName} " +
+				$"{fight.Winner.LastName} wins by Decision.\n\n" +
+				$"Score: {fight.Winner.Points}-{fight.Looser!.Points}";
+
+			return;
+		}
+
+		_resultLabel.Text =
+			$"FIGHT RESULT\n\n" +
+			$"{fight.Winner!.FirstName} " +
+			$"{fight.Winner.LastName} defeats " +
+			$"{fight.Looser!.FirstName} " +
+			$"{fight.Looser.LastName}\n\n" +
+			$"In {5 - fight.FinishMinute} Minutes and {60 - fight.FinishSecond} Seconds \n\n" +
+			$"via {fight.Result}\n" +
+			$"Round {fight.FinishRound}";
 	}
 
 	private void ResetFighterSelections()
@@ -303,18 +377,24 @@ public partial class Main : Node2D
 		OnFighter2Back();
 	}
 
+
 	// --------------------
-	// Persistance
+	// Persistence
 	// --------------------
 
 	private async void Save()
 	{
-		bool confirmation = await Popup("Are you sure you want to save?", "Cancel", "Confirm");
+		bool confirmation = await Popup(
+			"Are you sure you want to save?",
+			"Cancel",
+            "Confirm"
+		);
 
-		if(!confirmation)
+		if (!confirmation)
 			return;
 
-		string path = ProjectSettings.GlobalizePath("user://fighters.json");
+		string path =
+			ProjectSettings.GlobalizePath("user://fighters.json");
 
 		SaveManager.SaveFighters(_fighters, path);
 
@@ -323,32 +403,47 @@ public partial class Main : Node2D
 
 	private async void Load()
 	{
-		bool confirmation = await Popup("Are you sure you want to load?", "Cancel", "Confirm");
+		bool confirmation = await Popup(
+			"Are you sure you want to load?",
+			"Cancel",
+            "Confirm"
+		);
 
-		if(!confirmation)
+		if (!confirmation)
 			return;
 
-		string path = ProjectSettings.GlobalizePath("user://fighters.json");
-		List<Fighter> savedFighters = SaveManager.LoadFighters(path);
-		if(savedFighters == null)
-		{
-			GD.Print($"No save file found");
-		}
-		else
-		{
-			ClearFighterLists();
-			_fighters = savedFighters;
-			PopulateFighterLists();
-			GD.Print($"Loaded fighters from {path}");
+		string path =
+			ProjectSettings.GlobalizePath("user://fighters.json");
 
+		List<Fighter> savedFighters =
+			SaveManager.LoadFighters(path);
+
+		if (savedFighters == null)
+		{
+			GD.Print("No save file found");
+			return;
 		}
+
+		ClearFighterLists();
+
+		_fighters = savedFighters;
+
+		PopulateFighterLists();
+
+		ResetFighterSelections();
+
+		GD.Print($"Loaded fighters from {path}");
 	}
+
 
 	// --------------------
 	// Popup
 	// --------------------
 
-	private async Task<bool> Popup(string mainText, string cancelText, string okText)
+	private async Task<bool> Popup(
+		string mainText,
+		string cancelText,
+		string okText)
 	{
 		bool? result = null;
 
@@ -358,7 +453,6 @@ public partial class Main : Node2D
 		_popupWindow.DialogText = mainText;
 
 		_popupWindow.GetOkButton().Text = okText;
-
 		_popupWindow.GetCancelButton().Text = cancelText;
 
 		_popupWindow.Confirmed += OnConfirmed;
@@ -366,10 +460,12 @@ public partial class Main : Node2D
 
 		_popupWindow.PopupCentered();
 
-
 		while (result == null)
 		{
-			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+			await ToSignal(
+				GetTree(),
+				SceneTree.SignalName.ProcessFrame
+			);
 		}
 
 		_popupWindow.Confirmed -= OnConfirmed;
@@ -379,6 +475,7 @@ public partial class Main : Node2D
 
 		return result.Value;
 	}
+
 
 	// --------------------
 	// Helpers

@@ -1,10 +1,11 @@
 using FightEmpire.Core.Models;
 
 namespace FightEmpire;
-public class Exchange(Fighter fighter1, Fighter fighter2, int ExchangeNumber)
+public class Exchange(Fighter fighter1, Fighter fighter2, int secondsLeft, int roundNumber)
 {
     // Where we are
     public int ExchangeNumber { get; private set; }
+    public int RoundNumber = roundNumber;
 
     // Result of the exchange
     public Fighter? Winner { get; private set; }
@@ -12,6 +13,9 @@ public class Exchange(Fighter fighter1, Fighter fighter2, int ExchangeNumber)
 
     // Who managed to impose their preferred style
     public Fighter? StyleWinner { get; private set; }
+
+    public int Minute = secondsLeft / 60;
+    public int Second = secondsLeft % 60;
 
     // What kind of exchange it became
     public FightingStyle Style { get; private set; }

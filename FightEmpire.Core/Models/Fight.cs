@@ -9,6 +9,8 @@ public class Fight(Fighter Fighter1, Fighter Fighter2, int NumberOfRounds)
     public RoundOutcome? Result { get; private set; }
 
     public int FinishRound { get; private set; }
+    public int FinishMinute { get; private set; }
+    public int FinishSecond { get; private set; }
 
     public List<RoundSummary> RoundSummaries { get; } = new();
 
@@ -57,6 +59,10 @@ public class Fight(Fighter Fighter1, Fighter Fighter2, int NumberOfRounds)
         Looser = summary.Looser;
         Result = summary.outcome;
         FinishRound = summary.RoundNumber;
+
+        FinishMinute = summary.Exchanges[^1].Minute;
+        FinishSecond = summary.Exchanges[^1].Second;
+
     }
 
     private void DetermainWinnerByDecision()

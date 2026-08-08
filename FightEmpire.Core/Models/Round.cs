@@ -13,6 +13,8 @@ public class Round(Fighter fighter1, Fighter fighter2, int roundNumber)
 
     public RoundSummary? Summary;
 
+    private int _secondsLeft = 300;
+
 
     // Exchange tracking
     private int _numberOfExchanges;
@@ -63,9 +65,9 @@ public class Round(Fighter fighter1, Fighter fighter2, int roundNumber)
     {
         List<Exchange> exchangeList = new();
 
-        for(int i = 1; i <= _numberOfExchanges; i++)
+        while(_secondsLeft > 0)
         {
-            Exchange exchange = new(fighter1, fighter2, i);
+            Exchange exchange = new(fighter1, fighter2, _secondsLeft, roundNumber);
 
             exchange.Run();
 
@@ -76,6 +78,8 @@ public class Round(Fighter fighter1, Fighter fighter2, int roundNumber)
                 IsFinish = true;
                 break;
             }
+
+            _secondsLeft -= random.Next(5,15);
         }
 
         return exchangeList;
