@@ -9,10 +9,6 @@ using FightEmpire.Core.Models;
 
 FighterGenerator fighterGenerator = new();
 
-List<Fighter> fighters = fighterGenerator.generateFighters(10);
-
-Fighter fighter1 = fighters[0];
-Fighter fighter2 = fighters[1];
 
 
 // --------------------
@@ -264,33 +260,7 @@ void RunSimulations(
     int numberOfRounds,
     int numberOfSimulations)
 {
-    Fighter fighter1 = new()
-    {
-        FirstName = "Fighter",
-        Nickname = "The Beast",
-        LastName = "1",
-
-        Age = 25,
-
-        Striking = 50,
-        Wrestling = 50,
-        Grappling = 50,
-        Cardio = 50
-    };
-
-    Fighter fighter2 = new()
-    {
-        FirstName = "Fighter",
-        Nickname = "Mushrooms",
-        LastName = "2",
-
-        Age = 25,
-
-        Striking = 50,
-        Wrestling = 50,
-        Grappling = 50,
-        Cardio = 50
-    };
+    FighterGenerator generator = new();
 
     Dictionary<RoundOutcome, int> resultCounts = new()
     {
@@ -300,14 +270,25 @@ void RunSimulations(
         { RoundOutcome.Decision, 0 }
     };
 
-    int fighter1WinsBefore = fighter1.Wins;
-    int fighter2WinsBefore = fighter2.Wins;
+    int fighter1Wins = 0;
+    int fighter2Wins = 0;
 
     int totalRounds = 0;
     int totalExchanges = 0;
 
+    int totalFighter1Stats = 0;
+    int totalFighter2Stats = 0;
+
     for (int i = 0; i < numberOfSimulations; i++)
     {
+        List<Fighter> fighters = generator.generateFighters(2);
+
+        Fighter fighter1 = fighters[0];
+        Fighter fighter2 = fighters[1];
+
+        totalFighter1Stats += GetStatTotal(fighter1);
+        totalFighter2Stats += GetStatTotal(fighter2);
+
         Fight fight = new(
             fighter1,
             fighter2,
@@ -315,6 +296,15 @@ void RunSimulations(
         );
 
         fight.Run();
+
+        if (fight.Winner == fighter1)
+        {
+            fighter1Wins++;
+        }
+        else if (fight.Winner == fighter2)
+        {
+            fighter2Wins++;
+        }
 
         if (fight.Result is not null)
         {
@@ -329,21 +319,23 @@ void RunSimulations(
         }
     }
 
-    int fighter1SimulationWins =
-        fighter1.Wins - fighter1WinsBefore;
-
-    int fighter2SimulationWins =
-        fighter2.Wins - fighter2WinsBefore;
-
     double fighter1WinRate =
-        (double)fighter1SimulationWins
+        (double)fighter1Wins
         / numberOfSimulations
         * 100;
 
     double fighter2WinRate =
-        (double)fighter2SimulationWins
+        (double)fighter2Wins
         / numberOfSimulations
         * 100;
+
+    double averageFighter1Stats =
+        (double)totalFighter1Stats
+        / numberOfSimulations;
+
+    double averageFighter2Stats =
+        (double)totalFighter2Stats
+        / numberOfSimulations;
 
     double averageRounds =
         (double)totalRounds
@@ -354,20 +346,21 @@ void RunSimulations(
         / numberOfSimulations;
 
     double averageExchangesPerRound =
-        (double)totalExchanges
-        / totalRounds;
+        totalRounds == 0
+            ? 0
+            : (double)totalExchanges / totalRounds;
 
     Console.WriteLine($"""
     ===== SIMULATION RESULTS =====
 
-    {fighter1.FirstName} {fighter1.LastName}
-    Stats: {GetStatTotal(fighter1)}
-    Wins: {fighter1SimulationWins}
+    Fighter 1
+    Average stats: {averageFighter1Stats:F1}
+    Wins: {fighter1Wins}
     Win rate: {fighter1WinRate:F1}%
 
-    {fighter2.FirstName} {fighter2.LastName}
-    Stats: {GetStatTotal(fighter2)}
-    Wins: {fighter2SimulationWins}
+    Fighter 2
+    Average stats: {averageFighter2Stats:F1}
+    Wins: {fighter2Wins}
     Win rate: {fighter2WinRate:F1}%
 
 

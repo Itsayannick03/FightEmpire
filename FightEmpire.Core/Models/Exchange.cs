@@ -166,13 +166,10 @@ public class Exchange(Fighter fighter1, Fighter fighter2, int secondsLeft, int r
     private int GetFinishChance(int difference)
     {
         if (difference >= 200)
-            return 30;
+            return 5;
 
         if (difference >= 150)
-            return 15;
-
-        if (difference >= 100)
-            return 5;
+            return 2;
 
         return 0;
     }

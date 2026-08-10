@@ -32,6 +32,7 @@ theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 30
 
 [node name="MainLayout" type="VBoxContainer" parent="UI/Screen/Margin" unique_id=383409951]
+visible = false
 layout_mode = 2
 
 [node name="TitleLabel" type="Label" parent="UI/Screen/Margin/MainLayout" unique_id=1318815630]
@@ -190,9 +191,44 @@ text = "Save Game"
 layout_mode = 2
 text = "Load Game"
 
+[node name="RankingsButton" type="Button" parent="UI/Screen/Margin/MainLayout" unique_id=391509788]
+layout_mode = 2
+text = "Rankings"
+
 [node name="Popup" type="ConfirmationDialog" parent="UI/Screen/Margin" unique_id=49292045]
 disable_3d = true
 oversampling_override = 1.0
 initial_position = 2
 size = Vector2i(300, 150)
 ok_button_text = "Ok"
+
+[node name="RankingPanel" type="HBoxContainer" parent="UI/Screen/Margin" unique_id=884277581]
+layout_mode = 2
+
+[node name="Control" type="Control" parent="UI/Screen/Margin/RankingPanel" unique_id=230178900]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RankingContainer" type="VBoxContainer" parent="UI/Screen/Margin/RankingPanel" unique_id=367904802]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RankingList" type="ItemList" parent="UI/Screen/Margin/RankingPanel/RankingContainer" unique_id=1416932766]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ButtonContainer" type="HBoxContainer" parent="UI/Screen/Margin/RankingPanel/RankingContainer" unique_id=743727651]
+custom_maximum_size = Vector2(-1, 30)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BackButton" type="Button" parent="UI/Screen/Margin/RankingPanel/RankingContainer/ButtonContainer" unique_id=728627639]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Back"
+
+[node name="Control2" type="Control" parent="UI/Screen/Margin/RankingPanel" unique_id=784744643]
+layout_mode = 2
+size_flags_horizontal = 3

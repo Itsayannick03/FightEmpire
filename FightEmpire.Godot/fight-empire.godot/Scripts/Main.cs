@@ -5,11 +5,15 @@ using FightEmpire.Core.Generation;
 using FightEmpire.Core.Models;
 using FightEmpire.Core.Persistence;
 using FightEmpire;
+using System.Linq;
 
 public partial class Main : Node2D
 {
 	private int _fighterPopulation = 10;
 	private int _numberOfRounds = 3;
+	private double _waitTime = 0.3;
+
+	private List<Fighter> _rankedFighters = new();
 
 	private List<Fighter> _fighters = new();
 
@@ -21,6 +25,12 @@ public partial class Main : Node2D
 
 	// Popup UI
 	private ConfirmationDialog _popupWindow = null!;
+
+	// Ranking UI
+	private HBoxContainer _rankingPanel = null!;
+	private ItemList _rankingList = null!;
+	private Button _rankingsButton = null!;
+	private Button _backButton = null!;
 
 	// Fight UI
 	private Button _simulateButton = null!;
@@ -117,6 +127,21 @@ public partial class Main : Node2D
 		_popupWindow = GetNode<ConfirmationDialog>(
             "UI/Screen/Margin/Popup"
 		);
+
+		// Rankings
+		_rankingPanel = GetNode<HBoxContainer>(
+            "UI/Screen/Margin/RankingPanel"
+		);
+		_rankingList = GetNode<ItemList>(
+            "UI/Screen/Margin/RankingPanel/RankingContainer/RankingList"
+		);
+		_backButton = GetNode<Button>(
+			"UI/Screen/Margin/RankingPanel/RankingContainer/ButtonContainer/BackButton"
+		);
+		_rankingsButton = GetNode<Button>(
+			"UI/Screen/Margin/MainLayout/RankingsButton"
+		);
+
 	}
 
 	private void SetupUI()
@@ -129,7 +154,11 @@ public partial class Main : Node2D
 
 		_mainLayout.Visible = true;
 
+		// Popup
 		_popupWindow.Visible = false;
+
+		// Rankings
+		_rankingPanel.Visible = false;
 	}
 
 	private void ConnectSignals()
@@ -144,6 +173,9 @@ public partial class Main : Node2D
 
 		_saveButton.Pressed += Save;
 		_loadButton.Pressed += Load;
+
+		_rankingsButton.Pressed += Ranking;
+		_backButton.Pressed += Back;
 	}
 
 
@@ -162,15 +194,39 @@ public partial class Main : Node2D
 
 	private void PopulateFighterLists()
 	{
-		foreach (Fighter fighter in _fighters)
+		_rankedFighters = _fighters
+			.OrderByDescending(f => f.RankingPoints)
+			.ToList();
+
+		for (int i = 0; i < _rankedFighters.Count; i++)
 		{
+			Fighter fighter = _rankedFighters[i];
+
 			string name =
+				$"#{i + 1} " +
 				$"{fighter.FirstName} " +
 				$"\"{fighter.Nickname}\" " +
 				$"{fighter.LastName}";
 
 			_fighter1List.AddItem(name);
 			_fighter2List.AddItem(name);
+		}
+	}
+
+	private void PopulateFighterRankings()
+	{
+
+		_rankingList.Clear();
+
+		List<Fighter> sortedFighterList = _fighters.OrderByDescending(fighter => fighter.RankingPoints).ToList();
+
+		int ranking = 1;
+		foreach(Fighter fighter in sortedFighterList)
+		{
+			string rankingEntry = $"""{ranking}. {fighter.FirstName} "{fighter.Nickname}" {fighter.LastName} """;
+
+			_rankingList.AddItem(rankingEntry);
+			ranking++;
 		}
 	}
 
@@ -187,7 +243,7 @@ public partial class Main : Node2D
 
 	private void OnFighter1Selected(long index)
 	{
-		Fighter fighter = _fighters[(int)index];
+		Fighter fighter = _rankedFighters[(int)index];
 
 		if (fighter == _fighter2)
 		{
@@ -220,7 +276,7 @@ public partial class Main : Node2D
 
 	private void OnFighter2Selected(long index)
 	{
-		Fighter fighter = _fighters[(int)index];
+		Fighter fighter = _rankedFighters[(int)index];
 
 		if (fighter == _fighter1)
 		{
@@ -272,7 +328,7 @@ public partial class Main : Node2D
 			"VS\n" +
 			$"{fighter2.FirstName} {fighter2.LastName}";
 
-		await Wait(1.5);
+		await Wait(_waitTime);
 
 		fight.Run();
 
@@ -284,8 +340,17 @@ public partial class Main : Node2D
 		ShowFightResult(fight);
 
 		ResetFighterSelections();
+		UpdateFighterLists();
 
 		_simulateButton.Disabled = false;
+	}
+
+	private void UpdateFighterLists()
+	{
+		_fighter1List.Clear();
+		_fighter2List.Clear();
+
+		PopulateFighterLists();
 	}
 
 	private async Task ShowRound(RoundSummary round)
@@ -293,7 +358,7 @@ public partial class Main : Node2D
 		_resultLabel.Text =
 			$"ROUND {round.RoundNumber}";
 
-		await Wait(1);
+		await Wait(_waitTime);
 
 		foreach (Exchange exchange in round.Exchanges)
 		{
@@ -307,7 +372,7 @@ public partial class Main : Node2D
 				$"{round.Winner.LastName}\n\n" +
 				$"wins Round {round.RoundNumber}.";
 
-			await Wait(1.5);
+			await Wait(_waitTime);
 		}
 
 		_resultLabel.Clear();
@@ -342,7 +407,7 @@ public partial class Main : Node2D
 
 		_resultLabel.Text = text;
 
-		await Wait(1.5);
+		await Wait(_waitTime);
 
 		_resultLabel.Clear();
 	}
@@ -476,6 +541,24 @@ public partial class Main : Node2D
 		return result.Value;
 	}
 
+	// --------------------
+	// Ranking
+	// --------------------
+	private void Ranking()
+	{
+		_mainLayout.Visible = false;
+		_rankingPanel.Visible = true;
+
+		PopulateFighterRankings();
+	}
+
+	private void Back()
+	{
+		_mainLayout.Visible = true;
+		_rankingPanel.Visible = false;
+
+		UpdateFighterLists();
+	}
 
 	// --------------------
 	// Helpers

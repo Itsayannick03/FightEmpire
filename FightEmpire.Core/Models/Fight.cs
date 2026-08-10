@@ -12,6 +12,10 @@ public class Fight(Fighter Fighter1, Fighter Fighter2, int NumberOfRounds)
     public int FinishMinute { get; private set; }
     public int FinishSecond { get; private set; }
 
+    public FightSummary FightSummary;
+
+    public int RankingPointChange;
+
     public List<RoundSummary> RoundSummaries { get; } = new();
 
     Random random = new Random();
@@ -29,8 +33,7 @@ public class Fight(Fighter Fighter1, Fighter Fighter2, int NumberOfRounds)
             {
                 FinishFight(summary);
 
-                UpdateRecords();
-                UpdateHistories();
+                UpdateFigtherStats();
 
                 return;
             }
@@ -39,8 +42,15 @@ public class Fight(Fighter Fighter1, Fighter Fighter2, int NumberOfRounds)
         DetermainWinnerByDecision();
         FinishRound = NumberOfRounds;
 
-        UpdateRecords();
-        UpdateHistories();
+        UpdateFigtherStats();
+
+        FightSummary = new()
+        {
+          Winner = this.Winner!,
+          Looser = this.Looser!,
+          Result = this.Result,
+          FinishRound = this.FinishRound
+        };
 
     }
 
@@ -81,16 +91,25 @@ public class Fight(Fighter Fighter1, Fighter Fighter2, int NumberOfRounds)
         Result = RoundOutcome.Decision;
     }
 
-    private void UpdateRecords()
+    private void UpdateFigtherStats()
     {
-        Winner!.Wins++;
-        Looser!.Losses++;
+        CalculateRankingPointChange();
+
+        Winner!.WinFight(this);
+        Looser!.LooseFight(this);
     }
 
-    private void UpdateHistories()
+    private void CalculateRankingPointChange()
     {
-        Winner!.UpdateFightHistory(this);
-        Looser!.UpdateFightHistory(this);
+        int difference =
+            Looser!.RankingPoints - Winner!.RankingPoints;
+
+        int gain = 20 + (difference / 10);
+
+        if(!(Result == RoundOutcome.Decision))
+            RankingPointChange *= 2;
+
+        RankingPointChange = Math.Clamp(gain, 5, 50);
     }
 
     private void ResetPoints()

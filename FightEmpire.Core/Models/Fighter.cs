@@ -7,22 +7,28 @@ public class Fighter
     public string Nickname { get; set; } = string.Empty;
     public int Age { get; set; }
 
+
     public int Striking { get; set; }
     public int Wrestling { get; set; }
     public int Grappling { get; set; }
     public int Cardio { get; set; }
 
-    public List<Fight> FightHistory {get; private set;} = new();
+    public List<FightSummary> FightHistory {get; private set;} = new();
 
     public int StatsTotal => Striking + Wrestling + Grappling;
 
     public FightingStyle PreferredStyle => getPreferedStyle();
     public int PreferedStat => getPreferedStyleStat(PreferredStyle);
 
+
+
+
     public int Wins { get; set; } = 0 ;
     public int Losses { get; set; } = 0; 
 
     public int Points { get; set; } = 0;
+
+    public int RankingPoints { get; set; } = 1000;
 
     public int ExchangeWins = 0;
 
@@ -54,7 +60,7 @@ public class Fighter
         string history = "";
 
         int fightNumber = 1;
-        foreach (Fight fight in FightHistory)
+        foreach (FightSummary fight in FightHistory)
         {
             history += $"{fightNumber}.\t";
             bool won = fight.Winner == this;
@@ -111,7 +117,30 @@ public class Fighter
         }
     }
 
-    public void UpdateFightHistory(Fight fight)
+
+    public void WinFight(Fight fight)
+    {
+        Wins++;
+
+        UpdateFightHistory(fight.FightSummary);
+
+        RankingPoints += fight.RankingPointChange;
+
+
+    }
+
+    public void LooseFight(Fight fight)
+    {
+        Losses++;
+
+        UpdateFightHistory(fight.FightSummary);
+
+        Fighter winner = fight.Winner!;
+
+        RankingPoints -= fight.RankingPointChange;
+    }
+
+    private void UpdateFightHistory(FightSummary fight)
     {
         FightHistory.Add(fight);
     }
