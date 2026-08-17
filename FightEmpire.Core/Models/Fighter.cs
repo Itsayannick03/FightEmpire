@@ -7,6 +7,8 @@ public class Fighter
     public string Nickname { get; set; } = string.Empty;
     public int Age { get; set; }
 
+    public Nationality Nationality { get; set; }
+
 
     public int Striking { get; set; }
     public int Wrestling { get; set; }
@@ -20,17 +22,39 @@ public class Fighter
     public FightingStyle PreferredStyle => getPreferedStyle();
     public int PreferedStat => getPreferedStyleStat(PreferredStyle);
 
-
-
+    private int _submissionStaminaMax;
+    public int SubmissionStamina { get; private set; }
 
     public int Wins { get; set; } = 0 ;
     public int Losses { get; set; } = 0; 
+    public int Draws { get; set; } = 0; 
+
 
     public int Points { get; set; } = 0;
 
     public int RankingPoints { get; set; } = 1000;
 
-    public int ExchangeWins = 0;
+    public int RoundScore = 0;
+
+
+    public Fighter( string firstName, string lastName, string nickname, int age, Nationality nationality, int striking, int wrestling, int grappling, int cardio)
+{
+    FirstName = firstName;
+    LastName = lastName;
+    Nickname = nickname;
+    Age = age;
+
+    Nationality = nationality;
+
+    Striking = striking;
+    Wrestling = wrestling;
+    Grappling = grappling;
+    Cardio = cardio;
+
+    _submissionStaminaMax = Grappling;
+
+    SubmissionStamina = _submissionStaminaMax;
+}
 
 
     
@@ -60,22 +84,51 @@ public class Fighter
         string history = "";
 
         int fightNumber = 1;
+
         foreach (FightSummary fight in FightHistory)
         {
-            history += $"{fightNumber}.\t";
-            bool won = fight.Winner == this;
+            string result;
+            Fighter opponent;
 
-            Fighter opponent = won
-                ? fight.Looser!
-                : fight.Winner!;
+            if (fight.Result == FightResult.Draw)
+            {
+                result = "D";
 
-            string result = won ? "W" : "L";
+                opponent = fight.Fighter1 == this
+                    ? fight.Fighter2
+                    : fight.Fighter1;
+            }
+            else
+            {
+                bool won = fight.Winner == this;
+
+                result = won ? "W" : "L";
+
+                opponent = won
+                    ? fight.Loser!
+                    : fight.Winner!;
+            }
+
+            string method;
+
+            if (fight.IsFinish)
+            {
+                method =
+                    $"{fight.FinishOutcome} " +
+                    $"R{fight.FinishRound} " +
+                    $"{fight.FinishMinute}:{fight.FinishSecond:00}";
+            }
+            else
+            {
+                method = fight.Result.ToString();
+            }
 
             history +=
+                $"{fightNumber}.\t" +
                 $"{result}  " +
                 $"{opponent.FirstName} {opponent.LastName}  " +
-                $"{fight.Result}  " +
-                $"R{fight.FinishRound}\n";
+                $"{method}\n";
+
             fightNumber++;
         }
 
@@ -117,34 +170,6 @@ public class Fighter
         }
     }
 
-
-    public void WinFight(Fight fight)
-    {
-        Wins++;
-
-        UpdateFightHistory(fight.FightSummary);
-
-        RankingPoints += fight.RankingPointChange;
-
-
-    }
-
-    public void LooseFight(Fight fight)
-    {
-        Losses++;
-
-        UpdateFightHistory(fight.FightSummary);
-
-        Fighter winner = fight.Winner!;
-
-        RankingPoints -= fight.RankingPointChange;
-    }
-
-    private void UpdateFightHistory(FightSummary fight)
-    {
-        FightHistory.Add(fight);
-    }
-
     public void WinRound()
     {
         this.Points += 10;
@@ -155,13 +180,40 @@ public class Fighter
         this.Points += 9;
     }
 
+    public void LoseRound10_8()
+    {
+        this.Points += 8;
+    }
+
+    public void LoseSubmission()
+    {
+        SubmissionStamina--;
+    }
+    
     public void ResetPoints()
     {
         this.Points = 0;
     }
 
-    public void ResetExchangeWins()
+    public void ResetScore()
     {
-        this.ExchangeWins = 0;
+        this.RoundScore = 0;
+    }
+
+    public void RoundReset()
+    {
+        RoundScore = 0;
+
+        // TODO: make less op
+        SubmissionStamina = _submissionStaminaMax;
+
+    }
+
+    public void Reset()
+    {
+        ResetPoints();
+        ResetScore();
+
+        SubmissionStamina = _submissionStaminaMax;
     }
 }

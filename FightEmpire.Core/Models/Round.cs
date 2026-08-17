@@ -1,142 +1,142 @@
 using FightEmpire.Core.Models;
 
 namespace FightEmpire;
-public class Round(Fighter fighter1, Fighter fighter2, int roundNumber)
+public class Round
 {
+    public List<ExchangeSumary> Exchanges = new();
+
+    private Fighter _fighter1;
+    private Fighter _fighter2;
     // Round result/state
-    private Fighter? Winner = null;
-    private Fighter? Looser = null;
-    private RoundOutcome? Result = null;
+    private Fighter? Winner;
+    private Fighter? Looser;
+    private RoundOutcome Result;
 
-    private bool IsFinish = false;
-    public bool hasBeenRun = false;
-
-    public RoundSummary? Summary;
+    public bool IsFinish = false;
+    public ActionOutcome? FinishOutcome;
+    public RoundSummary Summary = null!;
 
     private int _secondsLeft = 300;
 
+    private FightPosition _currentPosition = FightPosition.Standing;
+    private int _roundNumber;
 
-    // Exchange tracking
-    private int _numberOfExchanges;
+    public Round(Fighter fighter1, Fighter fighter2, int roundNumber)
+    {
+        _fighter1 = fighter1;
+        _fighter2 = fighter2;
 
+        _roundNumber = roundNumber;
 
-    // Other
-    private Random random = new();
+    }
 
     public void Run()
     {
         ResetFighters();
-
-        DetermainNumberOfExchanges();
-
-        List<Exchange> exchanges = RunExchanges();
-
-        if(IsFinish)
-        {
-            SetFinishResult(exchanges[^1]);
-        }
-        else
-        {
-            DetermainRoundWinner(exchanges);
-            Result = RoundOutcome.NoFinish;
-        }
-
-        Summary = new RoundSummary
-        {
-            RoundNumber = roundNumber,
-            Winner = Winner!,
-            Looser = Looser!,
-            outcome = Result,
-            isFinish = IsFinish,
-            Exchanges = exchanges
-        };
-
-        hasBeenRun = true;
-    }
-
-    
-
-    private void DetermainNumberOfExchanges()
-    {
-        _numberOfExchanges = random.Next(5,15);
-    }
-
-    private List<Exchange> RunExchanges()
-    {
-        List<Exchange> exchangeList = new();
-
-        while(_secondsLeft > 0)
-        {
-            Exchange exchange = new(fighter1, fighter2, _secondsLeft, roundNumber);
-
-            exchange.Run();
-
-            exchangeList.Add(exchange);
-
-            if(exchange.IsFinish)
-            {
-                IsFinish = true;
-                break;
-            }
-
-            _secondsLeft -= random.Next(5,15);
-        }
-
-        return exchangeList;
-    }
-
-    private void SetFinishResult(Exchange exchange)
-    {
-        Winner = exchange.Winner;
-        Looser = exchange.Looser;
-
-        Result = exchange.Outcome;
-    }
-
-    private void DetermainRoundWinner(List<Exchange> exchanges)
-    {
-        foreach(Exchange exchange in exchanges)
-        {
-            exchange.Winner!.ExchangeWins++;
-        }
-
-        if (fighter1.ExchangeWins == fighter2.ExchangeWins)
-        {
-            GetRandomWinner();
-        }
-
-        else if(fighter1.ExchangeWins > fighter2.ExchangeWins)
-        {
-            Winner = fighter1;
-            Looser = fighter2;
-        }
-        else
-        {
-            Winner = fighter2;
-            Looser = fighter1;
-        }
-
-        Winner!.WinRound();
-        Looser!.LoseRound();
-    }
-
-    private void GetRandomWinner()
-    {
-        if(random.Next(0,101) > 50)
-        {
-            Winner = fighter1;
-            Looser = fighter2;
-
-            return;
-        }
-
-        Winner = fighter2;
-        Looser = fighter1; 
+        RunExchanges();
+        DetermainRoundWinner();
+        CreateSummary();
     }
 
     private void ResetFighters()
     {
-        fighter1.ResetExchangeWins();
-        fighter2.ResetExchangeWins();
+        _fighter1.RoundReset();
+        _fighter2.RoundReset();
     }
+
+    private void RunExchanges()
+    {
+
+        while(_secondsLeft > 0)
+        {
+            Exchange exchange = new(_fighter1, _fighter2, _currentPosition, _secondsLeft);
+
+            exchange.Run();
+
+            Exchanges.Add(exchange.Sumary);
+
+            if(exchange.IsFinish)
+            {
+                IsFinish = true;
+
+                Winner = exchange.Winner;
+                Looser = exchange.Looser;
+
+                FinishOutcome = exchange.FinishOutcome;
+
+                Result = RoundOutcome.Finish;
+
+                return;
+            }
+
+            _currentPosition = exchange.CurrentPosition;
+            _secondsLeft -= exchange.TimeTaken;
+        }
+
+        return;
+    }
+
+    private void DetermainRoundWinner()
+    {
+        if(IsFinish)
+            return;
+        
+        if(_fighter1.RoundScore == _fighter2.RoundScore)
+            GetRandomWinner();
+
+        else if(_fighter1.RoundScore > _fighter2.RoundScore)
+        {
+            Winner = _fighter1;
+            Looser = _fighter2;
+        }
+        else
+        {
+            Winner = _fighter2;
+            Looser = _fighter1;
+        }
+
+        Winner!.WinRound();
+
+        if(Winner.RoundScore >= Looser!.RoundScore * 2)
+        {
+            Result = RoundOutcome.TenEight;
+            Looser.LoseRound10_8();
+        }
+        else
+        {
+            Result = RoundOutcome.TenNine;
+            Looser.LoseRound();
+        }
+    }
+
+    private void GetRandomWinner()
+    {
+        if(Random.Shared.Next(2) == 0)
+        {
+            Winner = _fighter1;
+            Looser = _fighter2;
+            
+            return;
+        }
+
+        Winner = _fighter2;
+        Looser = _fighter1;
+    }
+
+    private void CreateSummary()
+{
+    int secondsUsed = 300 - _secondsLeft;
+
+    Summary = new RoundSummary(
+        _roundNumber,
+        Winner!,
+        Looser!,
+        Result,
+        IsFinish,
+        FinishOutcome,
+        secondsUsed,
+        _currentPosition,
+        Exchanges
+    );
+}
 }

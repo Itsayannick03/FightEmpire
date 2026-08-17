@@ -1,16 +1,52 @@
-using FightEmpire;
 using FightEmpire.Core.Models;
+
+namespace FightEmpire;
 
 public class RoundSummary
 {
-    public int RoundNumber {get; set;}
-    public Fighter Winner {get; set;}
-    public Fighter Looser {get; set;}
+    public int RoundNumber { get; }
 
-    public Fighter StyleWinner {get; set;}
-    public RoundOutcome? outcome {get; set;}
-    public FightingStyle style {get; set;}
-    public bool isFinish;
+    public Fighter Winner { get; }
+    public Fighter Looser { get; }
 
-    public List<Exchange> Exchanges {get; set;}
+    public RoundOutcome Result { get; }
+
+    public bool IsFinish { get; }
+
+    public ActionOutcome? FinishOutcome { get; }
+
+    public int SecondsUsed { get; }
+
+    public FightPosition EndPosition { get; }
+
+    public List<ExchangeSumary> Exchanges { get; }
+
+
+    public RoundSummary(
+        int roundNumber,
+        Fighter winner,
+        Fighter looser,
+        RoundOutcome result,
+        bool isFinish,
+        ActionOutcome? finishOutcome,
+        int secondsUsed,
+        FightPosition endPosition,
+        List<ExchangeSumary> exchanges)
+    {
+        RoundNumber = roundNumber;
+
+        Winner = winner;
+        Looser = looser;
+
+        Result = result;
+
+        IsFinish = isFinish;
+        FinishOutcome = finishOutcome;
+
+        SecondsUsed = secondsUsed;
+
+        EndPosition = endPosition;
+
+        Exchanges = exchanges;
+    }
 }
