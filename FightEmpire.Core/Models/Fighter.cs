@@ -1,4 +1,4 @@
-namespace FightEmpire.Core.Models;
+namespace FightEmpire;
 
 public class Fighter
 {
@@ -36,6 +36,8 @@ public class Fighter
 
     public int RoundScore = 0;
 
+    public Dictionary<BodypartType, Bodypart> Bodyparts { get; private set; }
+
 
     public Fighter( string firstName, string lastName, string nickname, int age, Nationality nationality, int striking, int wrestling, int grappling, int cardio)
 {
@@ -54,6 +56,34 @@ public class Fighter
     _submissionStaminaMax = Grappling;
 
     SubmissionStamina = _submissionStaminaMax;
+
+    Bodyparts = new()
+    {
+        {
+            BodypartType.Head,
+            new Bodypart(BodypartType.Head)
+        },
+        {
+            BodypartType.Torso,
+            new Bodypart(BodypartType.Torso)
+        },
+        {
+            BodypartType.LeftArm,
+            new Bodypart(BodypartType.LeftArm)
+        },
+        {
+            BodypartType.RightArm,
+            new Bodypart(BodypartType.RightArm)
+        },
+        {
+            BodypartType.LeftLeg,
+            new Bodypart(BodypartType.LeftLeg)
+        },
+        {
+            BodypartType.RightLeg,
+            new Bodypart(BodypartType.RightLeg)
+        }
+    };
 }
 
 

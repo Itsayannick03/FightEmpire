@@ -13,7 +13,7 @@ public partial class Main : Node2D
 {
 	private int _fighterPopulation = 10;
 	private int _numberOfRounds = 3;
-	private double _waitTime = 0.8;
+	private double _waitTime = 0.05;
 
 	private List<Fighter> _rankedFighters = new();
 	private List<Fighter> _fighters = new();
@@ -478,7 +478,7 @@ public partial class Main : Node2D
 
 		foreach (ExchangeSumary exchange in round.Exchanges)
 		{
-			bool clickThrough = true;
+			bool clickThrough = false;
 
 			if (clickThrough)
 			{
@@ -1062,25 +1062,32 @@ public partial class Main : Node2D
 
 	private async Task<NavigationAction> WaitForNavigation()
 	{
-		Task nextTask = ToSignal(
-			_nextButton,
-			Button.SignalName.Pressed
-		);
+		NavigationAction? result = null;
 
-		Task previousTask = ToSignal(
-			_previousButton,
-			Button.SignalName.Pressed
-		);
+		void OnNext()
+		{
+			result = NavigationAction.Next;
+		}
 
-		Task completedTask =
-			await Task.WhenAny(
-				nextTask,
-				previousTask
+		void OnPrevious()
+		{
+			result = NavigationAction.Previous;
+		}
+
+		_nextButton.Pressed += OnNext;
+		_previousButton.Pressed += OnPrevious;
+
+		while (result == null)
+		{
+			await ToSignal(
+				GetTree(),
+				SceneTree.SignalName.ProcessFrame
 			);
+		}
 
-		if (completedTask == nextTask)
-			return NavigationAction.Next;
+		_nextButton.Pressed -= OnNext;
+		_previousButton.Pressed -= OnPrevious;
 
-		return NavigationAction.Previous;
+		return result.Value;
 	}
 }
