@@ -40,51 +40,51 @@ public class Fighter
 
 
     public Fighter( string firstName, string lastName, string nickname, int age, Nationality nationality, int striking, int wrestling, int grappling, int cardio)
-{
-    FirstName = firstName;
-    LastName = lastName;
-    Nickname = nickname;
-    Age = age;
-
-    Nationality = nationality;
-
-    Striking = striking;
-    Wrestling = wrestling;
-    Grappling = grappling;
-    Cardio = cardio;
-
-    _submissionStaminaMax = Grappling;
-
-    SubmissionStamina = _submissionStaminaMax;
-
-    Bodyparts = new()
     {
+        FirstName = firstName;
+        LastName = lastName;
+        Nickname = nickname;
+        Age = age;
+
+        Nationality = nationality;
+
+        Striking = striking;
+        Wrestling = wrestling;
+        Grappling = grappling;
+        Cardio = cardio;
+
+        _submissionStaminaMax = Grappling;
+
+        SubmissionStamina = _submissionStaminaMax;
+
+        Bodyparts = new()
         {
-            BodypartType.Head,
-            new Bodypart(BodypartType.Head)
-        },
-        {
-            BodypartType.Torso,
-            new Bodypart(BodypartType.Torso)
-        },
-        {
-            BodypartType.LeftArm,
-            new Bodypart(BodypartType.LeftArm)
-        },
-        {
-            BodypartType.RightArm,
-            new Bodypart(BodypartType.RightArm)
-        },
-        {
-            BodypartType.LeftLeg,
-            new Bodypart(BodypartType.LeftLeg)
-        },
-        {
-            BodypartType.RightLeg,
-            new Bodypart(BodypartType.RightLeg)
-        }
-    };
-}
+            {
+                BodypartType.Head,
+                new Bodypart(BodypartType.Head)
+            },
+            {
+                BodypartType.Torso,
+                new Bodypart(BodypartType.Torso)
+            },
+            {
+                BodypartType.LeftArm,
+                new Bodypart(BodypartType.LeftArm)
+            },
+            {
+                BodypartType.RightArm,
+                new Bodypart(BodypartType.RightArm)
+            },
+            {
+                BodypartType.LeftLeg,
+                new Bodypart(BodypartType.LeftLeg)
+            },
+            {
+                BodypartType.RightLeg,
+                new Bodypart(BodypartType.RightLeg)
+            }
+        };
+    }
 
 
     
