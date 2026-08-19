@@ -1,154 +1,142 @@
 using FightEmpire.Core.Models;
 
 namespace FightEmpire;
-public class Round(Fighter fighter1, Fighter fighter2, int roundNumber)
+public class Round
 {
-    private Fighter? Winner = null;
-    private Fighter? Looser = null;
-    private RoundOutcome? Result = null;
-    public bool hasBeenRun = false;
-    public RoundSummary? Summary;
-    private Fighter? _styleWinner;
-    private bool IsFinish = false;
-    Random random = new();
+    public List<ExchangeSumary> Exchanges = new();
 
-    public void Run()
+    private Fighter _fighter1;
+    private Fighter _fighter2;
+    // Round result/state
+    private Fighter? Winner;
+    private Fighter? Looser;
+    private RoundOutcome Result;
+
+    public bool IsFinish = false;
+    public ActionOutcome? FinishOutcome;
+    public RoundSummary Summary = null!;
+
+    private int _secondsLeft = 300;
+
+    private FightPosition _currentPosition = FightPosition.Standing;
+    private int _roundNumber;
+
+    public Round(Fighter fighter1, Fighter fighter2, int roundNumber)
     {
-        
-        FightingStyle roundStyle = this.DetermainFightingStyle();
+        _fighter1 = fighter1;
+        _fighter2 = fighter2;
 
-        int fighther1Performance = GetPerformance(roundStyle, fighter1);
-        int fighther2Performance = GetPerformance(roundStyle, fighter2);
-
-        this.Result = this.DetermainRoundOutcome(roundStyle, fighther1Performance, fighther2Performance);
-        
-        this.DetermainRoundWinner(fighther1Performance, fighther2Performance);
-
-        if(!IsFinish)
-        {
-            this.Winner!.WinRound();
-            this.Looser!.LoseRound();
-        }
-
-        this.hasBeenRun = true;
-
-        this.Summary = new()
-        {
-            RoundNumber = roundNumber,
-            Winner = this.Winner!,
-            Looser = this.Looser!,
-            outcome = Result,
-            style = roundStyle,
-            isFinish = this.IsFinish,
-            StyleWinner = this._styleWinner!
-        };
-
+        _roundNumber = roundNumber;
 
     }
 
-    private void DetermainRoundWinner(int fighther1Performance, int fighther2Performance)
+    public void Run()
     {
-        if(fighther1Performance == fighther2Performance)
+        ResetFighters();
+        RunExchanges();
+        DetermainRoundWinner();
+        CreateSummary();
+    }
+
+    private void ResetFighters()
+    {
+        _fighter1.RoundReset();
+        _fighter2.RoundReset();
+    }
+
+    private void RunExchanges()
+    {
+
+        while(_secondsLeft > 0)
         {
-            this.GetRandomWinner();
+            Exchange exchange = new(_fighter1, _fighter2, _currentPosition, _secondsLeft);
+
+            exchange.Run();
+
+            Exchanges.Add(exchange.Sumary);
+
+            if(exchange.IsFinish)
+            {
+                IsFinish = true;
+
+                Winner = exchange.Winner;
+                Looser = exchange.Looser;
+
+                FinishOutcome = exchange.FinishOutcome;
+
+                Result = RoundOutcome.Finish;
+
+                return;
+            }
+
+            _currentPosition = exchange.CurrentPosition;
+            _secondsLeft -= exchange.TimeTaken;
         }
 
-        else if(fighther1Performance > fighther2Performance)
-        {
-            this.Winner = fighter1;
-            this.Looser = fighter2;
-        }
+        return;
+    }
 
+    private void DetermainRoundWinner()
+    {
+        if(IsFinish)
+            return;
+        
+        if(_fighter1.RoundScore == _fighter2.RoundScore)
+            GetRandomWinner();
+
+        else if(_fighter1.RoundScore > _fighter2.RoundScore)
+        {
+            Winner = _fighter1;
+            Looser = _fighter2;
+        }
         else
         {
-            this.Winner = fighter2;
-            this.Looser = fighter1;
+            Winner = _fighter2;
+            Looser = _fighter1;
+        }
+
+        Winner!.WinRound();
+
+        if(Winner.RoundScore >= Looser!.RoundScore * 2)
+        {
+            Result = RoundOutcome.TenEight;
+            Looser.LoseRound10_8();
+        }
+        else
+        {
+            Result = RoundOutcome.TenNine;
+            Looser.LoseRound();
         }
     }
 
     private void GetRandomWinner()
     {
-        if(random.Next(0, 101) > 50)
+        if(Random.Shared.Next(2) == 0)
         {
-            this.Winner = fighter1;
-            this.Looser = fighter2;
-
+            Winner = _fighter1;
+            Looser = _fighter2;
+            
             return;
         }
-  
-        this.Winner = fighter2;
-        this.Looser = fighter1;
+
+        Winner = _fighter2;
+        Looser = _fighter1;
     }
 
-    private FightingStyle DetermainFightingStyle()
-    {
-        int fighter1StyleScore = fighter1.PreferedStat * random.Next(-50, 51);
-        int fighter2StyleScore = fighter2.PreferedStat * random.Next(-50, 51);
+    private void CreateSummary()
+{
+    int secondsUsed = 300 - _secondsLeft;
 
-        if(fighter1StyleScore == fighter2StyleScore)
-        {
-            if(random.Next(0, 101) > 50)
-            {
-                this._styleWinner = fighter1;
-                return fighter1.PreferredStyle;
-
-            }
-            this._styleWinner = fighter2;
-            return fighter2.PreferredStyle;
-        }
-
-        if(fighter1StyleScore > fighter2StyleScore)
-        {
-            this._styleWinner = fighter1;
-
-            return fighter1.PreferredStyle;
-
-        }
-
-        this._styleWinner = fighter2;
-
-        return fighter2.PreferredStyle;
-    }
-
-    private RoundOutcome DetermainRoundOutcome(FightingStyle fightingStyle, int fighther1Performance, int fighther2Performance)
-    {
-        if(!(Math.Abs(fighther1Performance - fighther2Performance) > 115))
-            return RoundOutcome.NoFinish;
-        
-        this.IsFinish = true;
-        switch (fightingStyle)
-        {
-            case FightingStyle.Standup:
-                return RoundOutcome.Knockout;
-            case FightingStyle.Grappling:
-                return RoundOutcome.Submission;
-            case FightingStyle.Wrestling:
-                {
-                    if(random.Next(0,101) > 50)
-                        return RoundOutcome.TKO;
-                    return RoundOutcome.Submission;
-                }
-            default:
-                return RoundOutcome.Knockout;
-        }
-
-
-
-        
-    }
-
-    private int GetPerformance(FightingStyle fightingStyle, Fighter fighter)
-    {
-        switch (fightingStyle)
-        {
-            case FightingStyle.Standup:
-                return (fighter.Striking * 2) + fighter.Wrestling + fighter.Grappling + random.Next(-100, 101);
-            case FightingStyle.Wrestling:
-                return fighter.Striking  + (fighter.Wrestling * 2) + fighter.Grappling + random.Next(-100, 101);
-            case FightingStyle.Grappling:
-                return fighter.Striking  + fighter.Wrestling  + (fighter.Grappling * 2) + random.Next(-100, 101);    
-            default:
-                return fighter.Striking  + fighter.Wrestling  + fighter.Grappling + random.Next(-100, 101); 
-        }
-    }
+    Summary = new RoundSummary(
+        _roundNumber,
+        Winner!,
+        Looser!,
+        Result,
+        IsFinish,
+        FinishOutcome,
+        secondsUsed,
+        _currentPosition,
+        Exchanges
+    );
+}
 }

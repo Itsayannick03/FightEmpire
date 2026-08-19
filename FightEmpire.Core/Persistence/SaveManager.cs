@@ -1,6 +1,7 @@
 namespace FightEmpire.Core.Persistence;
 using System.Text.Json;
 using FightEmpire.Core.Models;
+using System.Text.Json.Serialization;
 
 public static class SaveManager
 {
@@ -10,7 +11,8 @@ public static class SaveManager
             fighters,
             new JsonSerializerOptions
             {
-                WriteIndented = true
+                WriteIndented = true,
+                ReferenceHandler = ReferenceHandler.IgnoreCycles
             }
         );
 
